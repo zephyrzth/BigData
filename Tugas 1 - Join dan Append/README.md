@@ -23,7 +23,7 @@ Dalam file dataset tersebut, data adalah berupa satu file `.csv`. Maka dari data
 
 ## Data Understanding
 
-![Isi Data](/images/isi_dataset.png)
+![Isi Data](images/isi_dataset.png)
 
 * Jumlah baris: 1.233.042
 * Makna kolom:
@@ -46,17 +46,17 @@ Di sini data akan dibagi (split) menjadi 2 bagian. Bagian pertama berisikan kolo
 
 2. Pada workspace baru, dibuat node `File Reader` untuk membaca file dataset yang dihubungkan ke node `Column Splitter` untuk membagi kolom. Sebelum dijalankan, dilakukan konfigurasi pada setiap node. Pada konfigurasi File Reader, centang `read column headers`, ganti delimiter menjadi `,`, dan centang `allow short lines` pada tab `Advanced`.
 
-    ![Split Kolom](/images/1.png)
+    ![Split Kolom](images/1.png)
 
-    ![Split Kolom](/images/2.png)
+    ![Split Kolom](images/2.png)
 
 3. Apply dan lakukan execute. Jika dilihat secara `File Table` akan terlihat seperti berikut:
 
-    ![Split Kolom](/images/3.png)
+    ![Split Kolom](images/3.png)
 
 4. Pada konfigurasi Column Splitter, data dipisah berdasarkan tipe data, menghasilkan 2 buah tabel sesuai pembagian di atas.
 
-    ![Split Kolom](/images/4.png)
+    ![Split Kolom](images/4.png)
 
 5. Data sudah terpisah dan proses pembagian data selesai. Berikutnya, 1 tabel yang bertipe data `int` (terdapat kolom `id`) disimpan ke dalam database, sedangkan 1 tabel lainnya bertipe data `string` disimpan menjadi file `.csv`. Di sini node yang perlu ditambahkan adalah:
     * `MySQL Connector` sebagai node konektor ke MySQL
@@ -66,20 +66,20 @@ Di sini data akan dibagi (split) menjadi 2 bagian. Bagian pertama berisikan kolo
 
     Dan didapatkan skema seperti ini.
 
-    ![Split Kolom](/images/5.png)
+    ![Split Kolom](images/5.png)
 
 6. Berikutnya dilakukan konfigurasi koneksi database pada node `MySQL Connector`, informasi tabel pada node `DB Table Creator`, informasi data diinput ke db di `DB Writer`, dan informasi data untuk ke file csv di `CSV Writer`.
 
     * File csv yang terbuat akan diberi nama: `car_used_split2.csv`
     * Tabel database baru yang terbuat diberi nama: `car_used_split`
 
-    ![Simpan DB dan CSV](/images/6.png)
+    ![Simpan DB dan CSV](images/6.png)
 
-    ![Simpan DB dan CSV](/images/7.png)
+    ![Simpan DB dan CSV](images/7.png)
 
-    ![Simpan DB dan CSV](/images/8.png)
+    ![Simpan DB dan CSV](images/8.png)
 
-    ![Simpan DB dan CSV](/images/9.png)
+    ![Simpan DB dan CSV](images/9.png)
 
     Jika diexecute sesuai urutan skema, maka salah satu data akan masuk ke file csv dan sisanya ke database. Data yang sudah terpisah ini akan digunakan di proses berikutnya.
 
@@ -89,19 +89,19 @@ Di sini akan dilakukan proses pembacaan data melalui dua sumber yang berbeda. Da
 
 1. Dibuat 2 node, yaitu `DB Reader` untuk membaca tabel dari database, dan `File Reader` untuk membaca file. Pastikan node `DB Reader` terhubung ke node sebelumnya (bisa oleh node `DB Writer`). Terakhir lakukan konfigurasi pada `File Reader` sama persis seperti sebelumnya (nama file yang dibaca: `car_used_split2.csv`). Untuk `DB Reader` tidak perlu konfigurasi karena data output dari `DB Writer` sebelumnya sudah berupa data dari tabel `car_used_split`. Dan diperoleh skema berikut.
 
-    ![Simpan DB dan CSV](/images/10.png)
+    ![Simpan DB dan CSV](images/10.png)
 
-    ![Simpan DB dan CSV](/images/11.png)
+    ![Simpan DB dan CSV](images/11.png)
 
-    ![Simpan DB dan CSV](/images/12.png)
+    ![Simpan DB dan CSV](images/12.png)
 
 2. Lalu, akan dilakukan append kolom kedua tabel dengan node `Column Appender`. Sebenarnya dengan node `Joiner` tetap bisa, karena saat data diload dari database maupun csv, KNIME sudah membuat kolom `Row ID` sehingga tetap ada kolom yang sama dan bisa dilakukan `JOIN`. Tetapi hasilnya akan sama dengan append kolom karena yang kita joinkan dicocokkan berdasarkan nomor baris, bukan id tabel. Lalu akan didapat skema berikut.
 
-    ![Simpan DB dan CSV](/images/13.png)
+    ![Simpan DB dan CSV](images/13.png)
 
-    ![Simpan DB dan CSV](/images/16.png)
+    ![Simpan DB dan CSV](images/16.png)
 
-    ![Simpan DB dan CSV](/images/14.png)
+    ![Simpan DB dan CSV](images/14.png)
 
 3. Proses append kolom selesai.
 
@@ -113,11 +113,11 @@ Dapat dilihat dari proses sebelumnya dan pada data awal, bahwa proses append kol
 
 Di sini data hasil append/join tersebut akan disimpan ke dalam file .csv bernama `car_used_completed.csv` dan database MySQL dengan nama tabel `car_used_completed`. Sama seperti sebelumnya, sebelum disimpan ke database perlu untuk membuat tabel dengan `DB Table Creator`. Dan didapatkan skema berikut:
 
-![Simpan DB dan CSV](/images/15.png)
+![Simpan DB dan CSV](images/15.png)
 
-![Simpan DB dan CSV](/images/17.png)
+![Simpan DB dan CSV](images/17.png)
 
-![Simpan DB dan CSV](/images/18.png)
+![Simpan DB dan CSV](images/18.png)
 
 Data sudah berhasil disimpan dalam database dan file csv.
 
