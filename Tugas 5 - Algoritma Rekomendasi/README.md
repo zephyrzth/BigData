@@ -26,7 +26,7 @@ Workflow yang akan dikerjakan adalah workflow Movie Recommendation Engine menggu
 
 ### Daftar File
 
-* KNIME workflow    : `10_Recommendation_Engine_w_Spark_Collaborative_Filtering (migrated).knwf`
+* KNIME workflow    : `10_Recommendation_Engine_w_Spark_Collaborative_Filtering (migrated).knwf` (file workflow tidak diupload karena melebihi batas ukuran maksimum file Github)
 * File dataset  : Digunakan `movies.csv` dan `ratings.csv` (dataset tidak diupload karena melebihi batas ukuran maksimum file Github)
 * Deskripsi dataset : Data ini diperoleh  oleh GroupLens Research dari website [MovieLens](http://movielens.org)
 * Sumber dataset    : https://grouplens.org/datasets/movielens/, MovieLens 20M Dataset (ml-20m.zip)
