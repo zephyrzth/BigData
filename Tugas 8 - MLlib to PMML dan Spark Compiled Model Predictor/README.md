@@ -26,6 +26,7 @@ Ada 2 section, untuk workflow `MLlib Model to PMML` dan `Spark Compiled Model Pr
   - [2.4 Modeling](#2.4-modeling)
   - [2.5 Evaluation](#2.5-evaluation)
   - [2.6 Deployment](#2.6-deployment)
+- [Kesimpulan](#kesimpulan)
 
 
 ## Daftar File
