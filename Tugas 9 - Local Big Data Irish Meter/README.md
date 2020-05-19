@@ -1,4 +1,4 @@
-# Dataset 2
+# Tugas Big Data - Local Big Data Irish Meter
 
 Nama          : Anargya Widyadhana
 
@@ -6,7 +6,7 @@ NRP           : 05111740000047
 
 Mata kuliah   : Big Data
 
-Dataset       : `Electricity Production`
+Dataset       : `Irish Energy Meter`
 
 ## Section
 
@@ -23,19 +23,19 @@ Ada 6 tahapan CRISP-DM
 
 ## Daftar File
 
-* KNIME workflow    : `UAS_Electricity_Production.knwf`
-* File dataset  : Digunakan `Electricity_Production.csv`
-* Deskripsi dataset : Merupakan data temperatur minimum per hari dimulai dari 1 Januari 1985
-* Sumber dataset    : [Timeseries Dataset](https://www.kaggle.com/shenba/time-series-datasets)
+* KNIME workflow    : `Tugas_9_Big_Data_Irish_Meter_on_Spark_only.knwf`
+* File dataset      : Digunakan `knime://knime.workflow/data/meters_01_50.csv`
+* Deskripsi dataset : Merupakan data penggunaan listrik dalam timestamp, dan nilainya dalam satuan kW
+* Sumber dataset    : Sudah ada dari KNIME
 
 ---
 
-![Workflow](images/workflow.svg)
+![Workflow](images/workflow.png)
 
 Dalam workflow ini, akan dijelaskan mengenai analisis yang berasal dari whitepaper "Big Data, Smart Energy, and Predictive Analytics". Akan dibuat Local Big Data Enviroment, yang akan meload dataset ke Hive, dan ditransfer ke Spark untuk dilakukan klustering. Akan menggunakan node Spark SQL untuk operasi SQL untuk menambahkan detail waktu terkait dengan data tanggal dan waktu di dataset agar diperoleh data waktu yang bervariasi. Terdapat juga metanode untuk melakukan klustering dengan k-Means dan PCA, dan menampilkan visualisasi kluster dalam grafik. Lalu, terakhir akan disimpan hasil kluster tersebut ke dalam format Hive dan Parquets
 
 
-### Business Understanding
+## Business Understanding
 
 Kali ini, akan digunakan konsep Big Data, sehingga akan ada penyimpanan data menggunakan Hive, dan proses pengolahan data klustering dengan menggunakan Apache Spark, node `Spark k-Means` dan `Spark PCA`. Oleh karena itu, pertama akan dibuat sebuah environment Big Data untuk tersambung ke konteks Spark dan Hive, lalu dilakukan proses Data Preparation untuk menyiapkan data yang ada dan disimpan ke Hive. Kemudian selanjutnya dari Hive akan diload ke Spark untuk diolah. Pertama akan dibuat pemecahan data tanggal dan waktu dari dataset menjadi timeseries yang lebih lengkap, seperti pemecahan tanggal, bulan, tahun, minggu, hari dalam minggu, dsb. Dari data ini, berikutnya akan dilakukan melalui sebuah rangkaian node untuk mencari rata-rata nilai per kategori timeseries, dijoin menjadi satu tabel, baru kemudian dilakukan modeling dari data di tabel tersebut.
 
@@ -43,18 +43,18 @@ Pada proses modeling, data akan dinormalisasi dan dilakukan klustering dengan no
 Dalam evaluation, dilakukan plotting grafik dengan node `Scatter Plot`, dan view tabel dengan node `Table View`. Pada deployment, data akan disimpan dalam format Hive dan Parquet.
 
 
-### Data Understanding
+## Data Understanding
 
 ![Isi Data](images/isi_dataset.png)
 
-* Jumlah data: 397
+* Jumlah data: 1226830
 * Makna kolom:
-    1. DATE: tanggal pada setiap data dalam format `d/m/yyyy`
-    2. IPG2211A2N: produksi listrik
-* Semua kolom berada pada format `string`
+    1. meterId: id meteran yang diukur, int
+    2. enc_datetime: data tanggal bulan tahun jam menit detik dalam format int timestamp
+    3. reading: jumlah kW penggunaan listrik, double
 
 
-### Data Preparation
+## Data Preparation
 
 Sesuai dengan proses pada `Business Understanding`, pertama akan dibuat environment Big Data. Kita menggunakan node `Create Local Big Data Environment` seperti pada gambar di bawah.
 
@@ -64,35 +64,15 @@ Sesuai dengan proses pada `Business Understanding`, pertama akan dibuat environm
 
 Digunakan 2 thread.
 
-Data yang akan kita lakukan train dan predict berasal dari `daily-minimum-temperatures-in-me.csv`. Maka setelah membuat Big Data Environment, file `.csv` akan diload ke KNIME Table melalui node `File Reader`.
+Data yang akan kita lakukan train dan predict berasal dari `knime://knime.workflow/data/meters_01_50.csv`. Maka setelah membuat Big Data Environment, file `.csv` akan diload ke KNIME Table melalui node `File Reader`.
 
 ![File Reader](images/file-reader.png)
 
 ![File Reader setting](images/file-reader-setting.png)
 
-Kolom pada data masih menggunakan nama default, yang memiliki nama `DATE` yang sama seperti tipe data di SQL, dan kolom `Daily minimum temperatures` memiliki whitespaces. Maka perlu direname kolomnya dengan node `Column Rename`.
-
-![Column Rename](images/column-rename.png)
-
-![Column Rename setting](images/column-rename-setting.png)
-
-Dan karena data belum mempunyai kolom id sebagai kolom khusus bersifat unik, maka perlu ditambahkan dengan node `RowID`.
-
-![RowID](images/rowid.png)
-
-![RowID setting](images/rowid-setting.png)
-
 Selanjutnya, data diload ke Hive di dalam metanode `Load Data`.
 
 ![Load Data](images/load-data.png)
-
-Di dalam Load Data, sebelum data dimasukkan ke Hive, kolom tadi yang masih dalam format string akan diconvert, karena nantinya kita akan melakukan proses agregasi pada data. Convert dilakukan dengan node `String to Date&Time` untuk kolom `daily_date`, dan node `String to Number` untuk kolom `daily_prod`.
-
-![Data Convert](images/convert-type.png)
-
-![Date Convert](images/convert-type-date.png)
-
-![Number Convert](images/convert-type-number.png)
 
 Sebelum data diload, akan dibuat tabel di Hive dengan node `DB Table Creator` yang tersambung ke konteks Hive. Setting adalah dengan dynamic, menyesuaikan kolom pada tabel yang dijadikan input port.
 
@@ -110,17 +90,21 @@ Lalu, karena di dalam modeling digunakan node dalam konteks Spark, maka di sini 
 
 ![Hive to Spark](images/hive-to-spark.png)
 
-Lalu dilakukan proses memasukkan variasi timeseries, yang berada di metanode `Extract date-time attributes`. Pada metanode tersebut, hanya terdapat `3` node `Spark SQL Query`, yang pertama untuk mengconvert tanggal dan waktu (jika di kolom menggunakan int timestamp atau format belum sesuai) dengan query SQL. Karena kita sudah mengganti format kolom sebelum diload di database, maka yang perlu diubah adalah kolom bertipe `datetime` pada tabel harus ditambah 1 hari, karena saat tabel diload ke Spark dari Hive, data datetime menjadi lebih cepat 1 hari dari seharusnya. Seperti berikut.
+Lalu dilakukan proses memasukkan variasi timeseries, yang berada di metanode `Extract date-time attributes`. Pada metanode tersebut, terdapat `4` node `Spark SQL Query`, yang pertama untuk mendapat tanggal (jika di kolom menggunakan int timestamp atau format belum sesuai) dengan menambah 3 digit pertama int timestamp dengan tanggal `2008-12-31` dengan query SQL. Untuk jam dan menit, dicari dengan digit ke 4-5, dengan mengkali dengan `* 30 / 60`, diikuti `% 24` untuk jam, dan `* 30 % 60` untuk menit. Nilai jam dan menit digabung dan dipisah dengan tanda `:`.
 
 ![Datetime Conversion](images/datetime-conversion.png)
 
-Pada node kedua, data datetime akan dipecah menjadi kolom tanggal, bulan, tahun, minggu, dan hari dalam format string, dan jam-menit masing-masing. Karena di sini data hanya tanggal, bukan waktu, maka tidak diambil query waktu.
+Pada node kedua, data datetime akan dipecah menjadi kolom tanggal, bulan, tahun, minggu, dan hari dalam format string, dan jammasing-masing.
 
 ![Datetime Conversion 2](images/datetime-conversion-2.png)
 
 Pada node ketiga dilakukan yang lebih spesifik yaitu mengkategorikan hari berdasarkan kategori hari kerja atau hari libur dengan kode `BD` dan `WE`.
 
 ![Datetime Conversion 3](images/datetime-conversion-3.png)
+
+Pada node keempat dilakukan segmen hari, yaitu dengan mengkategorikan berdasarkan rentang jam, rentang `7-9`, `9-13`, `13-17`, `17-21`, `21-7`.
+
+![Datetime Conversion 4](images/datetime-conversion-4.png)
 
 Berikutnya adalah proses pada metanode `Aggregations and time series`. Pada metanode ini akan ada `5` pecahan proses, untuk mencari rata-rata nilai pada kolom `Daily minimum temperatures`. Sebelumnya, karena data digunakan berkali-kali, agar cepat dilakukan caching dengan node `Persist Spark DataFrame/RDD` ke dalam memory.
 
@@ -130,53 +114,45 @@ Pada pecahan 1, dicari rata-rata nilai berdasarkan total, atau hanya dari id saj
 
 ![Aggregate 1](images/aggregate-1.png)
 
-![Aggregate 1-2](images/aggregate-1-1.png)
-
-![Aggregate 1-3](images/aggregate-1-2.png)
-
 Pada pecahan 2, dicari rata-rata nilai per tahun dan per id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id` dan `year`, lalu untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
 
 ![Aggregate 2](images/aggregate-2.png)
-
-![Aggregate 2-1](images/aggregate-2-1.png)
-
-![Aggregate 2-2](images/aggregate-2-2.png)
-
-![Aggregate 2-3](images/aggregate-2-3.png)
 
 Pada pecahan 3, dicari rata-rata nilai per bulan, dengan group by bulan, tahun, id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `month`, dan `year`, lalu untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
 
 ![Aggregate 3](images/aggregate-3.png)
 
-![Aggregate 3-1](images/aggregate-3-1.png)
-
-![Aggregate 3-2](images/aggregate-3-2.png)
-
-![Aggregate 3-3](images/aggregate-3-3.png)
-
 Pada pecahan 4, dicari rata-rata nilai tiap minggu, dengan group by minggu, tahun, id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `week`, dan `year`, lalu untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
 
 ![Aggregate 4](images/aggregate-4.png)
 
-![Aggregate 4-1](images/aggregate-4-1.png)
-
-![Aggregate 4-2](images/aggregate-4-2.png)
-
-![Aggregate 4-3](images/aggregate-4-3.png)
-
-Pada pecahan 5, dicari rata-rata nilai tiap hari, dengan group by daily_date (tanggal lengkap), id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `daily_date`, lalu untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
+Pada pecahan 5, dicari rata-rata string hari per minggu, dengan group by year, week, dayofweek, id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `dayofweek`, `week`, `year`. Kali ini menggunakan tabel pivot karena, nantinya ingin mendapatkan jumlah energi kW per satuan hari (Monday, Tuesday, dst.) per meterId, sehingga hasil akhirnya bisa banyak meterId yang sama lebih dari satu bersarkan harinya. Hal ini akan menimbulkan masalah saat nanti dilakukan join karena jumlah data berbeda. Oleh karena itu, dengan pivot, data hari tidak akan melebar ke bawah, tetapi ke samping dengan menambah field baru. Lalu dihitung rata-rata per harinya, dan hasil kolomnya direname seperti sebelumnya.
 
 ![Aggregate 5](images/aggregate-5.png)
 
-![Aggregate 5-1](images/aggregate-5-1.png)
+Pada pecahan 6, dicari rata-rata nilai tiap hari, dengan group by eventDate (tanggal lengkap), id. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `eventDate`, lalu untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
 
-![Aggregate 5-2](images/aggregate-5-2.png)
+![Aggregate 6](images/aggregate-6.png)
 
-![Aggregate 5-3](images/aggregate-5-3.png)
+Pada pecahan 7, dicari rata-rata nilai tiap segmen hari, dengan group by eventDate (tanggal lengkap), id, dan daySegment. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `eventDate`, `daySegment`, lalu dibuat pivot lagi, dan untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
+
+![Aggregate 7](images/aggregate-7.png)
+
+Pada pecahan 8, dicari rata-rata nilai tiap classifier hari, dengan group by year, month, week, id, dan dayClassifier. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `year`, `month`, `week`, `id`, `dayClassifier`, lalu dibuat pivot lagi, dan untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
+
+![Aggregate 8](images/aggregate-8.png)
+
+Pada pecahan 9, dicari rata-rata nilai tiap jam, dengan group by eventDate (tanggal lengkap), id, dan hour. Pertama akan dijumlah nilai berdasarkan dengan `sum` group by `id`, `eventDate`, `hour`, lalu dibuat pivot lagi, dan untuk setiap `id`, data nilai per tahun tersebut akan dirata-rata dengan `mean`. Terakhir, dilakukan rename kolom seperti tadi.
+
+![Aggregate 9](images/aggregate-9.png)
 
 Berikutnya semua data pada pecahan masing-masing akan dijoin dan jadi satu tabel.
 
 ![Joiner](images/joiner.png)
+
+Selanjutnya, akan dicari persentase data masing-masing dayofweek terhadap minggu, masing-masing segmen hari terhadap hari, melalui `Spark SQL Query`.
+
+![Percentage](images/percentage.png)
 
 Semua proses di atas jika digabungkan seperti berikut.
 
@@ -189,7 +165,7 @@ Semua proses di atas jika digabungkan seperti berikut.
 ![Data Preparation Workflow 4](images/data-preparation-4.svg)
 
 
-### Modeling
+## Modeling
 
 Proses modeling seluruhnya berada pada component `PCA, k-Means, Scatter Plot`. Pada proses ini, akan dilakukan training dengan metode clustering menggunakan algoritma k-means dan PCA di dalam konteks Spark, menggunakan node `Spark k-Means` dan `Spark PCA`. Akan digunakan 3 cluster (sesuai dengan jumlah kelas pada data) dan 300 kali iterasi.
 
@@ -201,9 +177,9 @@ Sebelumnya, data dinormalisasi dengan node `Spark Normalizer`.
 
 ![Spark k-Means setting](images/spark-kmeans-setting.png)
 
-![Spark k-Means](images/spark-pca.png)
+![Spark PCA](images/spark-pca.png)
 
-![Spark k-Means](images/spark-pca-setting.png)
+![Spark PCA setting](images/spark-pca-setting.png)
 
 Hasil dari keduanya dijoin dan diconvert menjadi KNIME Table, dan didenormalisasi kembali.
 
@@ -215,13 +191,6 @@ Sampai sini, data akan dipecah menjadi 2, satu dipakai di Evaluation, satunya di
 
 ![Last Model](images/last-model.png)
 
-
-![Spark MLlib to PMML](images/mllib-to-pmml.png)
-
-Setelah diconvert, output dari node `Spark MLlib to PMML` adalah `PMML Model`. Model ini lalu bisa dicompile di dalam KNIME dengan node `PMML Compiler`. Dalam kenyataannya, model PMML bisa dicompile menggunakan berbagai bahasa pemrograman, seperti Python dan Java.
-
-![PMML Compiler](images/pmml-compiler.png)
-
 Workflow Modeling keseluruhan sebagai berikut.
 
 ![Modeling Workflow](images/modeling-workflow.png)
@@ -229,7 +198,7 @@ Workflow Modeling keseluruhan sebagai berikut.
 ![Modeling Workflow 2](images/modeling-workflow-2.svg)
 
 
-### Evaluation
+## Evaluation
 
 Setelah ditrain berikutnya akan dilakukan dua proses, yaitu melakukan view data dalam plot scatter dan dalam view tabel
 
@@ -250,7 +219,7 @@ Workflow Evaluation keseluruhan dan hasilnya sebagai berikut.
 ![Evaluation Workflow 3](images/evaluation-workflow-3.png)
 
 
-### Deployment
+## Deployment
 
 Pada deployment, dilakukan 2 proses, insert data ke Hive dan Parquet.
 
