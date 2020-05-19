@@ -110,7 +110,7 @@ Lalu, karena di dalam modeling digunakan node dalam konteks Spark, maka di sini 
 
 ![Hive to Spark](images/hive-to-spark.png)
 
-Lalu dilakukan proses memasukkan variasi timeseries, yang berada di metanode `Extract date-time attributes`. Pada metanode tersebut, hanya terdapat `3` node `Spark SQL Query`, yang pertama untuk mengconvert tanggal dan waktu (jika di kolom menggunakan int timestamp atau format belum sesuai) dengan query SQL. Karena kita sudah mengganti format kolom sebelum diload di database, maka yang perlu diubah adalah kolom bertipe `datetime` pada tabel harus ditambah 1 hari, karena saat tabel diload ke Spark dari Hive, data datetime menjadi lebih cepat 1 hari dari seharusnya. Seperti berikut.
+Lalu dilakukan proses memasukkan variasi timeseries, yang berada di metanode `Extract date-time attributes`. Pada metanode tersebut, hanya terdapat `2` node `Spark SQL Query`, yang pertama untuk mengconvert tanggal dan waktu (jika di kolom menggunakan int timestamp atau format belum sesuai) dengan query SQL. Karena kita sudah mengganti format kolom sebelum diload di database, maka yang perlu diubah adalah kolom bertipe `datetime` pada tabel harus ditambah 1 hari, karena saat tabel diload ke Spark dari Hive, data datetime menjadi lebih cepat 1 hari dari seharusnya. Seperti berikut.
 
 ![Datetime Conversion](images/datetime-conversion.png)
 

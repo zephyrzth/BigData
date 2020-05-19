@@ -35,7 +35,7 @@ Ada 6 tahapan CRISP-DM
 Dalam workflow ini, akan dijelaskan mengenai analisis yang berasal dari whitepaper "Big Data, Smart Energy, and Predictive Analytics". Akan dibuat Local Big Data Enviroment, yang akan meload dataset ke Hive, dan ditransfer ke Spark untuk dilakukan klustering. Akan menggunakan node Spark SQL untuk operasi SQL untuk menambahkan detail waktu terkait dengan data tanggal dan waktu di dataset agar diperoleh data waktu yang bervariasi. Terdapat juga metanode untuk melakukan klustering dengan k-Means dan PCA, dan menampilkan visualisasi kluster dalam grafik. Lalu, terakhir akan disimpan hasil kluster tersebut ke dalam format Hive dan Parquets
 
 
-### Business Understanding
+## Business Understanding
 
 Kali ini, akan digunakan konsep Big Data, sehingga akan ada penyimpanan data menggunakan Hive, dan proses pengolahan data klustering dengan menggunakan Apache Spark, node `Spark k-Means` dan `Spark PCA`. Oleh karena itu, pertama akan dibuat sebuah environment Big Data untuk tersambung ke konteks Spark dan Hive, lalu dilakukan proses Data Preparation untuk menyiapkan data yang ada dan disimpan ke Hive. Kemudian selanjutnya dari Hive akan diload ke Spark untuk diolah. Pertama akan dibuat pemecahan data tanggal dan waktu dari dataset menjadi timeseries yang lebih lengkap, seperti pemecahan tanggal, bulan, tahun, minggu, hari dalam minggu, dsb. Dari data ini, berikutnya akan dilakukan melalui sebuah rangkaian node untuk mencari rata-rata nilai per kategori timeseries, dijoin menjadi satu tabel, baru kemudian dilakukan modeling dari data di tabel tersebut.
 
@@ -43,7 +43,7 @@ Pada proses modeling, data akan dinormalisasi dan dilakukan klustering dengan no
 Dalam evaluation, dilakukan plotting grafik dengan node `Scatter Plot`, dan view tabel dengan node `Table View`. Pada deployment, data akan disimpan dalam format Hive dan Parquet.
 
 
-### Data Understanding
+## Data Understanding
 
 ![Isi Data](images/isi_dataset.png)
 
@@ -54,7 +54,7 @@ Dalam evaluation, dilakukan plotting grafik dengan node `Scatter Plot`, dan view
 * Semua kolom berada pada format `string`
 
 
-### Data Preparation
+## Data Preparation
 
 Sesuai dengan proses pada `Business Understanding`, pertama akan dibuat environment Big Data. Kita menggunakan node `Create Local Big Data Environment` seperti pada gambar di bawah.
 
@@ -189,7 +189,7 @@ Semua proses di atas jika digabungkan seperti berikut.
 ![Data Preparation Workflow 4](images/data-preparation-4.svg)
 
 
-### Modeling
+## Modeling
 
 Proses modeling seluruhnya berada pada component `PCA, k-Means, Scatter Plot`. Pada proses ini, akan dilakukan training dengan metode clustering menggunakan algoritma k-means dan PCA di dalam konteks Spark, menggunakan node `Spark k-Means` dan `Spark PCA`. Akan digunakan 3 cluster (sesuai dengan jumlah kelas pada data) dan 300 kali iterasi.
 
@@ -222,7 +222,7 @@ Workflow Modeling keseluruhan sebagai berikut.
 ![Modeling Workflow 2](images/modeling-workflow-2.svg)
 
 
-### Evaluation
+## Evaluation
 
 Setelah ditrain berikutnya akan dilakukan dua proses, yaitu melakukan view data dalam plot scatter dan dalam view tabel
 
@@ -243,7 +243,7 @@ Workflow Evaluation keseluruhan dan hasilnya sebagai berikut.
 ![Evaluation Workflow 3](images/evaluation-workflow-3.png)
 
 
-### Deployment
+## Deployment
 
 Pada deployment, dilakukan 2 proses, insert data ke Hive dan Parquet.
 
