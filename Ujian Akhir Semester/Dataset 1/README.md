@@ -215,13 +215,6 @@ Sampai sini, data akan dipecah menjadi 2, satu dipakai di Evaluation, satunya di
 
 ![Last Model](images/last-model.png)
 
-
-![Spark MLlib to PMML](images/mllib-to-pmml.png)
-
-Setelah diconvert, output dari node `Spark MLlib to PMML` adalah `PMML Model`. Model ini lalu bisa dicompile di dalam KNIME dengan node `PMML Compiler`. Dalam kenyataannya, model PMML bisa dicompile menggunakan berbagai bahasa pemrograman, seperti Python dan Java.
-
-![PMML Compiler](images/pmml-compiler.png)
-
 Workflow Modeling keseluruhan sebagai berikut.
 
 ![Modeling Workflow](images/modeling-workflow.png)
