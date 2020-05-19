@@ -120,7 +120,7 @@ Pada node kedua, data datetime akan dipecah menjadi kolom bulan dan tahun karena
 
 Tidak ada node ketiga, dikarenakan tidak ada analisis hari dalam data ini.
 
-Berikutnya adalah proses pada metanode `Aggregations and time series`. Pada metanode ini akan ada `3` pecahan proses, untuk mencari rata-rata nilai pada kolom `Daily minimum temperatures`. Sebelumnya, karena data digunakan berkali-kali, agar cepat dilakukan caching dengan node `Persist Spark DataFrame/RDD` ke dalam memory.
+Berikutnya adalah proses pada metanode `Aggregations and time series`. Pada metanode ini akan ada `3` pecahan proses, untuk mencari rata-rata nilai pada kolom `daily_prod`. Sebelumnya, karena data digunakan berkali-kali, agar cepat dilakukan caching dengan node `Persist Spark DataFrame/RDD` ke dalam memory.
 
 ![Cache](images/cache.png)
 
